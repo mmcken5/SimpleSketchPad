@@ -10,11 +10,10 @@ using System.Windows.Forms;
 
 namespace SimpleSketchPad
 {
-    public partial class Form1 : Form
+    abstract class GraphicObject
     {
-        public Form1()
-        {
-            InitializeComponent();
-        }
+        public abstract void Update(Point _currentPoint);
+
+        public abstract void Draw(Graphics g);
     }
 }

@@ -1,1 +1,9 @@
+c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketchPad\obj\Debug\SimpleSketchPad.MainProgram.resources
+c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketchPad\obj\Debug\SimpleSketchPad.Properties.Resources.resources
+c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketchPad\obj\Debug\SimpleSketchPad.csproj.GenerateResource.Cache
 c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketchPad\bin\Debug\SimpleSketchPad.exe.config
+c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketchPad\bin\Debug\SimpleSketchPad.exe
+c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketchPad\bin\Debug\SimpleSketchPad.pdb
+c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketchPad\obj\Debug\SimpleSketchPad.exe
+c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketchPad\obj\Debug\SimpleSketchPad.pdb
+c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketchPad\obj\Debug\SimpleSketchPad.csprojResolveAssemblyReference.cache
