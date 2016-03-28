@@ -307,6 +307,16 @@ namespace SimpleSketchPad
                         // Set the point on the graphic where the mouse has clicked
                         g.SetMouseClickDragPoint(e.Location);
 
+                        // If the graphic is part of a group, set the mouse point for all graphics in the group
+                        List<GraphicObject> group = GetGroup(graphic);
+                        if (group.Count > 0)
+                        {
+                            foreach (GraphicObject gO in group)
+                            {
+                                gO.SetMouseClickDragPoint(e.Location);
+                            }
+                        }
+
                         beginGraphicMove = true;
                         
                         break;
@@ -357,6 +367,21 @@ namespace SimpleSketchPad
             {
                 if (beginGraphicMove)
                 {
+                    List<GraphicObject> group = new List<GraphicObject>();
+
+                    // Check to see if selected graphic is part of a group
+                    group = GetGroup(graphic);
+
+                    // If selected graphic belongs to a group, apply move to all graphics in group
+                    if (group.Count > 0)
+                    {
+                        foreach (GraphicObject g in group)
+                        {
+                            // Update the graphic to reflect dragging
+                            g.UpdateMouseClickDragPoint(e.Location);
+                        }
+                    }                
+
                     // Update the graphic to reflect dragging
                     graphic.UpdateMouseClickDragPoint(e.Location);
 
@@ -550,7 +575,7 @@ namespace SimpleSketchPad
             pictureBox1.Invalidate();
         }
 
-        // IN PROGRESS: Copy the currently selected graphic(s)
+        // Copy the currently selected graphic(s)
         private void button9_Click(object sender, EventArgs e)
         {
             // Check if the selected graphic is part of a group
