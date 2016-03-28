@@ -6,4 +6,3 @@ c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketch
 c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketchPad\bin\Debug\SimpleSketchPad.pdb
 c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketchPad\obj\Debug\SimpleSketchPad.exe
 c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketchPad\obj\Debug\SimpleSketchPad.pdb
-c:\users\mike\documents\visual studio 2012\Projects\SimpleSketchPad\SimpleSketchPad\obj\Debug\SimpleSketchPad.csprojResolveAssemblyReference.cache

@@ -31,11 +31,20 @@ namespace SimpleSketchPad
 
         private GraphicObject graphic;
         private List<GraphicObject> graphicObjectList;
+        private List<GraphicObject> selectedGraphics;
+        private List<GraphicObject> copiedGraphics;
 
         private bool polygonInProgress;
+        private bool beginGraphicMove;
+        private bool isGraphicDragging;
 
-        //List<List<Point>> curves = new List<List<Point>>();
-        //List<Point> currentLine = new List<Point>();
+        private List<List<GraphicObject>> groups;
+
+        private Point defaultPasteOffset;
+
+        private int copySize;
+
+        private int id; 
 
         public MainProgram()
         {
@@ -45,6 +54,9 @@ namespace SimpleSketchPad
             drawButtons = new List<Button>();
             selectButtons = new List<Button>();
             graphicObjectList = new List<GraphicObject>();
+            selectedGraphics = new List<GraphicObject>();
+            copiedGraphics = new List<GraphicObject>();
+            groups = new List<List<GraphicObject>>();
 
             // Add the draw buttons
             drawButtons.Add(button1);
@@ -79,7 +91,15 @@ namespace SimpleSketchPad
             button1.Select();
             drawMode = DrawMode.freehand;
 
+            // Set the default paste offset
+            defaultPasteOffset = new Point(50, 50);
+
             polygonInProgress = false;
+            beginGraphicMove = false;
+            isGraphicDragging = false;
+
+            copySize = 0;
+            id = 0;
         }
 
         // Show the colour picker options
@@ -222,51 +242,79 @@ namespace SimpleSketchPad
         {
             // Save the last point (assign it to the current mouse position)
             startPoint = e.Location;
-
             isMouseDown = true;
 
-            // Create a new GraphicsObject, depending on which draw mode is selected
-            switch (drawMode)
+            // Check to see if in draw mode
+            if (mode == Mode.draw)
             {
-                case DrawMode.freehand:
-                    graphic = new FreehandLine(colour, thickness);
-                    break;
+                // Create a new GraphicsObject, depending on which draw mode is selected
+                switch (drawMode)
+                {
+                    case DrawMode.freehand:
+                        graphic = new FreehandLine(colour, thickness, id++);
+                        break;
                 
-                case DrawMode.line:
-                    graphic = new Line(startPoint, colour, thickness);
-                    break;
+                    case DrawMode.line:
+                        graphic = new Line(startPoint, colour, thickness, id++);
+                        break;
 
-                case DrawMode.rectangle:
-                    graphic = new Rectangle(startPoint, colour, thickness);
-                    break;
+                    case DrawMode.rectangle:
+                        graphic = new Rectangle(startPoint, colour, thickness, id++);
+                        break;
 
-                case DrawMode.ellipse:
-                    graphic = new Ellipse(startPoint, colour, thickness);
-                    break;
+                    case DrawMode.ellipse:
+                        graphic = new Ellipse(startPoint, colour, thickness, id++);
+                        break;
 
-                case DrawMode.square:
-                    graphic = new Square(startPoint, colour, thickness);
-                    break;
+                    case DrawMode.square:
+                        graphic = new Square(startPoint, colour, thickness, id++);
+                        break;
 
-                case DrawMode.circle:
-                    graphic = new Circle(startPoint, colour, thickness);
-                    break;
+                    case DrawMode.circle:
+                        graphic = new Circle(startPoint, colour, thickness, id++);
+                        break;
+                }
+
+                if (drawMode == DrawMode.polygon)
+                {
+                    // Check if a polygon is being drawn
+                    // If one is not, create one
+                    if (!polygonInProgress)
+                    {
+                        polygonInProgress = true;
+
+                        // Create a new polygon
+                        graphic = new Polygon(e.Location, colour, thickness, id++);
+                    }
+                }
+
+                // Add the graphic to the list of existing (already drawn) graphics
+                graphicObjectList.Add(graphic);
             }
 
-            if (drawMode == DrawMode.polygon)
+            // Must be in select mode
+            else
             {
-                // Check if a polygon is being drawn
-                // If one is not, create one
-                if (!polygonInProgress)
+                // See if a graphic is under the mouse
+                foreach (GraphicObject g in graphicObjectList)
                 {
-                    polygonInProgress = true;
+                    // Select the graphic (if there is more than one match only select the top layer graphic (i.e. the first match))
+                    if (g.IsGraphicAtMousePoint(e.Location))
+                    {
+                        // Store a reference to the graphic
+                        graphic = g;
 
-                    graphic = new Polygon(e.Location, colour, thickness);
+                        // Set the point on the graphic where the mouse has clicked
+                        g.SetMouseClickDragPoint(e.Location);
+
+                        beginGraphicMove = true;
+                        
+                        break;
+                    }
                 }
             }
-
-            // Add the graphic to the list of existing (already drawn) graphics
-            graphicObjectList.Add(graphic);
+            // Redraw
+            pictureBox1.Invalidate();
         }
 
         // Draw if in draw mode
@@ -304,6 +352,18 @@ namespace SimpleSketchPad
                     }
                 }
             }
+
+            else
+            {
+                if (beginGraphicMove)
+                {
+                    // Update the graphic to reflect dragging
+                    graphic.UpdateMouseClickDragPoint(e.Location);
+
+                    isGraphicDragging = true; 
+                }
+            }
+
             // Refresh the picturebox (invoke the Paint event)
             pictureBox1.Invalidate();
         }
@@ -316,21 +376,94 @@ namespace SimpleSketchPad
             prevPoint = Point.Empty;
             currentPoint = Point.Empty;
 
-            if (drawMode == DrawMode.polygon)
+            if (mode == Mode.draw)
             {
-                // Check if a polygon is being drawn
-                // If it is, update the newest line
-                if (polygonInProgress)
+                if (drawMode == DrawMode.polygon)
                 {
-                    try
+                    // Check if a polygon is being drawn
+                    // If it is, update the newest line
+                    if (polygonInProgress)
                     {
-                        graphic.Update(e.Location);
-                        Polygon p = (Polygon)graphic;
-                        polygonInProgress = p.AddLine(e.Location);
-                    }
-                    catch (Exception exc)
-                    {
+                        try
+                        {
+                            graphic.Update(e.Location);
+                            Polygon p = (Polygon)graphic;
+                            polygonInProgress = p.AddLine(e.Location);
+                        }
+                        catch (Exception exc)
+                        {
 
+                        }
+                    }
+                }
+            }
+
+            else
+            {
+                if (isGraphicDragging)
+                {
+                    // Finish dragging the graphic
+                    beginGraphicMove = false;
+                    isGraphicDragging = false; 
+                }
+                else
+                {
+                    beginGraphicMove = false;
+
+                    // If graphic is part of a group, get the group
+                    List<GraphicObject> selectGroup = GetGroup(graphic); 
+
+                    // Check if graphic is selected
+                    if (graphic.IsGraphicSelected())
+                    {
+                        // Check if graphic is part of a group
+                        // If part of group, deselect entire group
+
+                        if (selectGroup.Count > 0)
+                        {
+                            foreach (GraphicObject g in selectGroup)
+                            {
+                                // Deselect the graphic
+                                g.DeselectGraphic();
+
+                                // Remove from list of selected graphics
+                                selectedGraphics.Remove(g);
+                            }
+                        }
+                        else
+                        {
+                            // Deselect the graphic
+                            graphic.DeselectGraphic();
+
+                            // Remove from list of selected graphics
+                            selectedGraphics.Remove(graphic);
+                        }
+                    }
+                    else
+                    {
+                        // Check if graphic is part of a group
+                        // If part of group, select entire group
+
+                        // Loop through group and select each graphic
+                        if (selectGroup.Count > 0)
+                        {
+                            foreach (GraphicObject g in selectGroup)
+                            {
+                                // Select the graphic and show this by changing the colour
+                                g.SelectGraphic(Color.Red);
+
+                                // Add the selected graphic to the list of selected graphics
+                                selectedGraphics.Add(g);
+                            }
+                        }
+                        else
+                        {
+                            // Select the graphic and show this by changing the colour
+                            graphic.SelectGraphic(Color.Red);
+
+                            // Add the selected graphic to the list of selected graphics
+                            selectedGraphics.Add(graphic);
+                        }
                     }
                 }
             }
@@ -339,15 +472,28 @@ namespace SimpleSketchPad
             pictureBox1.Invalidate();
         }
 
-        private void clearButton_Click(object sender, EventArgs e)//our clearing button
+        // If the graphic is part of a group return the group
+        private List<GraphicObject> GetGroup(GraphicObject _go)
         {
+            List<GraphicObject> list = new List<GraphicObject>();
+            GraphicObject g = _go;
 
-            if (pictureBox1.Image != null)
+            // Loop through list of groups
+            foreach (List<GraphicObject> group in groups)
             {
-                pictureBox1.Image = null;
-
-                Invalidate();
+                // Loop through each graphic in the current group
+                foreach (GraphicObject gObj in group)
+                {
+                    // Check if selected graphic is eqaul to graphic in group
+                    if (g.Equals(gObj))
+                    {
+                        list = group;
+                        return list; 
+                    }
+                }
             }
+
+            return list; 
         }
 
         // Perform the drawing
@@ -376,6 +522,124 @@ namespace SimpleSketchPad
             startPoint = Point.Empty;
             prevPoint = Point.Empty;
             currentPoint = Point.Empty;
+        }
+
+        // Delete all the selected graphics
+        private void button8_Click(object sender, EventArgs e)
+        {
+            // Convert the list of selected graphics to an array
+            GraphicObject[] gArr = selectedGraphics.ToArray();
+
+            // Remove each one from the original list
+            foreach (GraphicObject g in gArr)
+            {
+                graphicObjectList.Remove(g);
+            }
+
+            // Clear the selected graphics list
+            selectedGraphics.Clear();
+
+            // Redraw
+            pictureBox1.Invalidate();
+        }
+
+        // Copy the currently selected graphic(s)
+        private void button9_Click(object sender, EventArgs e)
+        {
+            // Copy all the selected graphics to the copied list
+            foreach (GraphicObject g in selectedGraphics)
+            {
+                // Create a copy of the graphic
+                GraphicObject copy = g.Copy(id++);
+
+                // Add the graphic to the copied graphics list
+                copiedGraphics.Add(copy);
+            }
+        }
+
+        // Paste the copied graphics
+        private void button10_Click(object sender, EventArgs e)
+        {
+            // Add the copied graphics to the list of graphics to be drawn and include a paste offset so they are not directly on top of current graphic
+            foreach (GraphicObject g in copiedGraphics)
+            {
+                // Set the point where to paste
+                g.PasteOffset(defaultPasteOffset);
+
+                // Add to the list of graphics that are to be drawn
+                graphicObjectList.Add(g);
+            }
+
+            // Clear the copied graphics
+            copiedGraphics.Clear();
+
+            // Deselect the selected graphics
+            foreach (GraphicObject g in selectedGraphics)
+            {
+                g.DeselectGraphic();
+            }
+            
+            // Clear the selected graphics
+            selectedGraphics.Clear();
+
+            // Redraw
+            pictureBox1.Invalidate();
+        }
+
+        // Group the selected graphics together
+        private void button11_Click(object sender, EventArgs e)
+        {
+            // IN PROGRESS:
+            List<GraphicObject> group = new List<GraphicObject>();
+
+            // Check if any of selected graphics are part of group
+            foreach (GraphicObject g in selectedGraphics)
+            {
+                // If the current graphic belongs to a group, get a reference to that group
+                group = GetGroup(g);
+
+                // If found a group, break out of the loop
+                if (group.Count > 0)
+                {
+                    break; 
+                }
+            }
+
+            // If a group exists, add graphics to that group
+            if (group.Count > 0)
+            {
+                foreach (GraphicObject g in selectedGraphics)
+                {
+                    // Add selected grapic if not already in group
+                    if (!group.Contains(g))
+                    {
+                        group.Add(g);
+                    }
+                }
+            }
+            // Create a new group if one does not exist and add selected graphics to it
+            else
+            {
+                foreach (GraphicObject g in selectedGraphics)
+                {
+                    // Add selected grapic
+                    group.Add(g);
+                }
+
+                // Add that list to the group list
+                groups.Add(group);
+            }
+        }
+
+        // TODO: Ungroup the selected group of graphics
+        private void button12_Click(object sender, EventArgs e)
+        {
+            // TODO: Find the list in the list of groups that contains any one of the selected graphics
+
+            // TODO: Loop through the selected graphics and check to see if in a group
+
+            // TODO: If one in a group is found, delete that list from the groups list
+
         }
     }
 }

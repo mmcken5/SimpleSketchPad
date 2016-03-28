@@ -12,7 +12,10 @@ namespace SimpleSketchPad
 {
     class Polygon : GraphicObject
     {
+        private int id; 
+
         private Color colour;
+        private Color origColour;
         private int thickness;
 
         private List<Line> lines;
@@ -30,8 +33,10 @@ namespace SimpleSketchPad
 
         }
 
-        public Polygon(Point _startPoint, Color _colour, int _thickness)
+        public Polygon(Point _startPoint, Color _colour, int _thickness, int _id)
         {
+            id = _id; 
+
             colour = _colour;
             thickness = _thickness;
             startPoint = _startPoint;
@@ -40,7 +45,7 @@ namespace SimpleSketchPad
 
             lines = new List<Line>();
 
-            currentLine = new Line(startPoint, colour, thickness);
+            currentLine = new Line(startPoint, colour, thickness, id);
         }
 
         // Update the end point of the line
@@ -67,7 +72,7 @@ namespace SimpleSketchPad
 
             startPoint = endPoint;
 
-            currentLine = new Line(startPoint, colour, thickness);
+            currentLine = new Line(startPoint, colour, thickness, id);
 
             return true; 
         }
@@ -102,6 +107,74 @@ namespace SimpleSketchPad
             }
 
             return retVal; 
+        }
+
+        // Return true if the object contains the point passed as a parameter
+        public override bool IsGraphicAtMousePoint(Point p)
+        {
+            throw new NotImplementedException();
+        }
+
+        // Redraw the graphic during and after being selected
+        public override void SelectGraphic(Color c)
+        {
+            throw new NotImplementedException();
+        }
+
+        // Set the point where the mouse has clicked the object
+        public override void SetMouseClickDragPoint(Point p)
+        {
+            throw new NotImplementedException();
+        }
+
+        // Update the point (as the mouse moves) while the graphic is being dragged
+        public override void UpdateMouseClickDragPoint(Point p)
+        {
+            throw new NotImplementedException();
+        }
+
+        // Set the graphic's colour back to the original colour
+        public override void DeselectGraphic()
+        {
+            colour = origColour;
+        }
+
+        // Return true if the graphic is currently selected
+        public override bool IsGraphicSelected()
+        {
+            throw new NotImplementedException();
+        }
+
+        // Return a copy of the graphic
+        public override GraphicObject Copy(int _id)
+        {
+            throw new NotImplementedException();
+        }
+
+        // Set the paste offset (how much to shift the object by)
+        public override void PasteOffset(Point p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool Equals(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetHashCode()
+        {
+            return 0;
+        }
+
+        public override string ToString()
+        {
+            return "Polygon " + id;
+        }
+
+        public override int GetId()
+        {
+            return id;
         }
     }
 }

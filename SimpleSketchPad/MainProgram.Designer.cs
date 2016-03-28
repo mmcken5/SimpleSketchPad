@@ -205,6 +205,7 @@
             this.button8.TabIndex = 15;
             this.button8.Text = "Delete";
             this.button8.UseVisualStyleBackColor = true;
+            this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
             // button9
             // 
@@ -214,6 +215,7 @@
             this.button9.TabIndex = 11;
             this.button9.Text = "Copy";
             this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
             // button10
             // 
@@ -223,6 +225,7 @@
             this.button10.TabIndex = 12;
             this.button10.Text = "Paste";
             this.button10.UseVisualStyleBackColor = true;
+            this.button10.Click += new System.EventHandler(this.button10_Click);
             // 
             // button11
             // 
@@ -232,6 +235,7 @@
             this.button11.TabIndex = 13;
             this.button11.Text = "Group";
             this.button11.UseVisualStyleBackColor = true;
+            this.button11.Click += new System.EventHandler(this.button11_Click);
             // 
             // button12
             // 
@@ -241,6 +245,7 @@
             this.button12.TabIndex = 14;
             this.button12.Text = "Ungroup";
             this.button12.UseVisualStyleBackColor = true;
+            this.button12.Click += new System.EventHandler(this.button12_Click);
             // 
             // button13
             // 
