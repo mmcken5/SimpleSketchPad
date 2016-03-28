@@ -438,6 +438,9 @@ namespace SimpleSketchPad
                             // Remove from list of selected graphics
                             selectedGraphics.Remove(graphic);
                         }
+
+                        // Set the graphic reference to null (as nothing is selected)
+                        graphic = null; 
                     }
                     else
                     {
@@ -478,17 +481,21 @@ namespace SimpleSketchPad
             List<GraphicObject> list = new List<GraphicObject>();
             GraphicObject g = _go;
 
-            // Loop through list of groups
-            foreach (List<GraphicObject> group in groups)
+            // Check that a graphic is selected
+            if (graphic != null)
             {
-                // Loop through each graphic in the current group
-                foreach (GraphicObject gObj in group)
+                // Loop through list of groups
+                foreach (List<GraphicObject> group in groups)
                 {
-                    // Check if selected graphic is eqaul to graphic in group
-                    if (g.Equals(gObj))
+                    // Loop through each graphic in the current group
+                    foreach (GraphicObject gObj in group)
                     {
-                        list = group;
-                        return list; 
+                        // Check if selected graphic is eqaul to graphic in group
+                        if (g.Equals(gObj))
+                        {
+                            list = group;
+                            return list;
+                        }
                     }
                 }
             }
@@ -589,7 +596,6 @@ namespace SimpleSketchPad
         // Group the selected graphics together
         private void button11_Click(object sender, EventArgs e)
         {
-            // IN PROGRESS:
             List<GraphicObject> group = new List<GraphicObject>();
 
             // Check if any of selected graphics are part of group
@@ -631,15 +637,17 @@ namespace SimpleSketchPad
             }
         }
 
-        // TODO: Ungroup the selected group of graphics
+        // Ungroup the selected group of graphics
         private void button12_Click(object sender, EventArgs e)
         {
-            // TODO: Find the list in the list of groups that contains any one of the selected graphics
+            // Find group that contains the selected graphic
+            List<GraphicObject> group = GetGroup(graphic);
 
-            // TODO: Loop through the selected graphics and check to see if in a group
-
-            // TODO: If one in a group is found, delete that list from the groups list
-
+            // Delete the group
+            if (group.Count > 0)
+            {
+                groups.Remove(group);
+            }
         }
     }
 }
