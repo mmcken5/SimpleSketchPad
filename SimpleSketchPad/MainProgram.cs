@@ -550,9 +550,12 @@ namespace SimpleSketchPad
             pictureBox1.Invalidate();
         }
 
-        // Copy the currently selected graphic(s)
+        // IN PROGRESS: Copy the currently selected graphic(s)
         private void button9_Click(object sender, EventArgs e)
         {
+            // Check if the selected graphic is part of a group
+            List<GraphicObject> group = GetGroup(graphic);
+
             // Copy all the selected graphics to the copied list
             foreach (GraphicObject g in selectedGraphics)
             {
@@ -561,6 +564,23 @@ namespace SimpleSketchPad
 
                 // Add the graphic to the copied graphics list
                 copiedGraphics.Add(copy);
+            }
+
+            // If selected graphic part of a group, create a new group for the copied graphics
+            if (group.Count > 0)
+            {
+                // Create a new group
+                group = new List<GraphicObject>();
+
+                // Add copied graphics to the new group
+                foreach (GraphicObject g in copiedGraphics)
+                {
+                    // Add selected grapic
+                    group.Add(g);
+                }
+
+                // Add that list to the group list
+                groups.Add(group);
             }
         }
 
@@ -588,6 +608,9 @@ namespace SimpleSketchPad
             
             // Clear the selected graphics
             selectedGraphics.Clear();
+
+            // Set graphic reference to null (as nothing is selected)
+            graphic = null;
 
             // Redraw
             pictureBox1.Invalidate();
