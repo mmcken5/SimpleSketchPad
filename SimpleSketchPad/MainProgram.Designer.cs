@@ -187,6 +187,7 @@
             this.btn_undo.TabIndex = 9;
             this.btn_undo.Text = "Undo";
             this.btn_undo.UseVisualStyleBackColor = true;
+            this.btn_undo.Click += new System.EventHandler(this.btn_undo_Click);
             // 
             // btn_redo
             // 

@@ -33,6 +33,8 @@ namespace SimpleSketchPad
         private List<GraphicObject> graphicObjectList;
         private List<GraphicObject> selectedGraphics;
         private List<GraphicObject> copiedGraphics;
+        private Stack<List<GraphicObject>> state;
+        private List<GraphicObject> currentState;
 
         private bool polygonInProgress;
         private bool beginGraphicMove;
@@ -57,6 +59,14 @@ namespace SimpleSketchPad
             selectedGraphics = new List<GraphicObject>();
             copiedGraphics = new List<GraphicObject>();
             groups = new List<List<GraphicObject>>();
+            state = new Stack<List<GraphicObject>>();
+
+            // Initialize state with blank canvas
+            List<GraphicObject> blankCanvas = new List<GraphicObject>();
+            Line blankLine = new Line(new Point(0, 0), Color.White, 1, -1);
+            blankCanvas.Add(blankLine);
+            //state.Push(blankCanvas);
+            currentState = blankCanvas;
 
             // Add the draw buttons
             drawButtons.Add(button1);
@@ -324,7 +334,7 @@ namespace SimpleSketchPad
                 }
             }
             // Redraw
-            pictureBox1.Invalidate();
+            Redraw();
         }
 
         // Draw if in draw mode
@@ -390,7 +400,7 @@ namespace SimpleSketchPad
             }
 
             // Refresh the picturebox (invoke the Paint event)
-            pictureBox1.Invalidate();
+            Redraw();
         }
 
         // Finish drawing the graphic
@@ -495,9 +505,31 @@ namespace SimpleSketchPad
                     }
                 }
             }
+            
+            // TODO: This does not work properly, fix this!
+            // ADDED
+            
+            List<GraphicObject> copy = new List<GraphicObject>();
+            GraphicObject newG; 
+
+            // Loop through current graphics and create a copy
+            foreach (GraphicObject g in graphicObjectList)
+            {
+                newG = g.Copy(id++);
+
+                // Add the graphic to the list
+                copy.Add(newG);
+            }
+
+            // Save the current state
+            state.Push(currentState);
+            //state.Push(copy);
+            currentState = copy;
+            
+            // END ADDED
 
             // Cause the picture box to re-paint (i.e. invoke Paint method)
-            pictureBox1.Invalidate();
+            Redraw();
         }
 
         // If the graphic is part of a group return the group
@@ -538,6 +570,10 @@ namespace SimpleSketchPad
                     g.Draw(e.Graphics);
                 }
             }
+            else // Draw a blank canvas
+            {
+                e.Graphics.DrawLine(new Pen(Color.White, 2), new Point(0, 0), new Point(0, 0));
+            }
         }
 
         // Update the thickness value
@@ -572,7 +608,7 @@ namespace SimpleSketchPad
             selectedGraphics.Clear();
 
             // Redraw
-            pictureBox1.Invalidate();
+            Redraw();
         }
 
         // Copy the currently selected graphic(s)
@@ -638,7 +674,7 @@ namespace SimpleSketchPad
             graphic = null;
 
             // Redraw
-            pictureBox1.Invalidate();
+            Redraw();
         }
 
         // Group the selected graphics together
@@ -696,6 +732,46 @@ namespace SimpleSketchPad
             {
                 groups.Remove(group);
             }
+        }
+
+        // IN PROGRESS
+        // TODO: Get this working!
+        // Undo the last drawing-related action
+        private void btn_undo_Click(object sender, EventArgs e)
+        {
+            // Get the previous state
+            if (state.Count > 0)
+            {
+                currentState = state.Pop();
+
+                // Copy the current state to the list to be drawn
+                List<GraphicObject> temp = new List<GraphicObject>();
+
+                foreach (GraphicObject g in currentState)
+                {
+                    temp.Add(g.Copy(id++));
+                }
+                graphicObjectList = temp;
+            }
+
+            //else
+            //{
+            //    // Add blank canvas state
+            //    List<GraphicObject> blankCanvas = new List<GraphicObject>();
+            //    Line blankLine = new Line(new Point(0, 0), Color.White, 1, -1);
+            //    blankCanvas.Add(blankLine);
+            //    //state.Push(blankCanvas);
+            //    currentState = blankCanvas; 
+            //}
+
+            // Redraw
+            Redraw();
+        }
+
+        // Redraw
+        private void Redraw()
+        {
+            pictureBox1.Invalidate();
         }
     }
 }
