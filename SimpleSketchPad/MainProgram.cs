@@ -34,6 +34,7 @@ namespace SimpleSketchPad
         private List<GraphicObject> selectedGraphics;
         private List<GraphicObject> copiedGraphics;
         private Stack<List<GraphicObject>> state;
+        private Stack<List<GraphicObject>> prevState;
         private List<GraphicObject> currentState;
 
         private bool polygonInProgress;
@@ -60,6 +61,7 @@ namespace SimpleSketchPad
             copiedGraphics = new List<GraphicObject>();
             groups = new List<List<GraphicObject>>();
             state = new Stack<List<GraphicObject>>();
+            prevState = new Stack<List<GraphicObject>>();
 
             // Initialize state with blank canvas
             List<GraphicObject> blankCanvas = new List<GraphicObject>();
@@ -506,9 +508,6 @@ namespace SimpleSketchPad
                 }
             }
             
-            // TODO: This does not work properly, fix this!
-            // ADDED
-            
             List<GraphicObject> copy = new List<GraphicObject>();
             GraphicObject newG; 
 
@@ -523,10 +522,7 @@ namespace SimpleSketchPad
 
             // Save the current state
             state.Push(currentState);
-            //state.Push(copy);
             currentState = copy;
-            
-            // END ADDED
 
             // Cause the picture box to re-paint (i.e. invoke Paint method)
             Redraw();
@@ -734,18 +730,27 @@ namespace SimpleSketchPad
             }
         }
 
-        // IN PROGRESS
-        // TODO: Get this working!
         // Undo the last drawing-related action
         private void btn_undo_Click(object sender, EventArgs e)
         {
             // Get the previous state
             if (state.Count > 0)
             {
-                currentState = state.Pop();
-
                 // Copy the current state to the list to be drawn
                 List<GraphicObject> temp = new List<GraphicObject>();
+
+                // Store current state in the redo stack
+                foreach (GraphicObject g in currentState)
+                {
+                    temp.Add(g.Copy(id++));
+                }
+                prevState.Push(temp);
+
+
+                temp = new List<GraphicObject>();
+
+                // Get the previous state
+                currentState = state.Pop();
 
                 foreach (GraphicObject g in currentState)
                 {
@@ -753,16 +758,6 @@ namespace SimpleSketchPad
                 }
                 graphicObjectList = temp;
             }
-
-            //else
-            //{
-            //    // Add blank canvas state
-            //    List<GraphicObject> blankCanvas = new List<GraphicObject>();
-            //    Line blankLine = new Line(new Point(0, 0), Color.White, 1, -1);
-            //    blankCanvas.Add(blankLine);
-            //    //state.Push(blankCanvas);
-            //    currentState = blankCanvas; 
-            //}
 
             // Redraw
             Redraw();
@@ -772,6 +767,37 @@ namespace SimpleSketchPad
         private void Redraw()
         {
             pictureBox1.Invalidate();
+        }
+
+        // Redo the last drawing-related action
+        private void btn_redo_Click(object sender, EventArgs e)
+        {
+            if (prevState.Count == 0)
+                return;
+
+            // Copy the current state to the list to be drawn
+            List<GraphicObject> temp = new List<GraphicObject>();
+
+            // Store current state in the undo stack
+            foreach (GraphicObject g in currentState)
+            {
+                temp.Add(g.Copy(id++));
+            }
+            state.Push(temp);
+
+            temp = new List<GraphicObject>();
+
+            // Get the previous state
+            currentState = prevState.Pop();
+
+            foreach (GraphicObject g in currentState)
+            {
+                temp.Add(g.Copy(id++));
+            }
+            graphicObjectList = temp;
+
+            // Redraw
+            Redraw();
         }
     }
 }
