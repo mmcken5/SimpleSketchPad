@@ -137,5 +137,20 @@ namespace SimpleSketchPad
         {
             return id;
         }
+
+        public override string Encode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Decode(string s)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string ObjType()
+        {
+            return "ellipse";
+        }
     }
 }

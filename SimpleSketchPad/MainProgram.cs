@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace SimpleSketchPad
 {
@@ -429,7 +430,7 @@ namespace SimpleSketchPad
                         }
                         catch (Exception exc)
                         {
-
+                            MessageBox.Show("An error has occured while attempting to draw a Polygon.\r\n" + exc.Message);
                         }
                     }
                 }
@@ -798,6 +799,84 @@ namespace SimpleSketchPad
 
             // Redraw
             Redraw();
+        }
+
+        // Save the drawings
+        private void button14_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+            saveFileDialog1.Filter = "txt files (*.txt)|*.txt";
+            saveFileDialog1.FilterIndex = 2;
+            saveFileDialog1.RestoreDirectory = true;
+
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    // Get the file path as indicated by the user
+                    string filePath = saveFileDialog1.FileName;
+
+                    // Write to the new file
+                    using (StreamWriter outputFile = new StreamWriter(filePath))
+                    {
+                        foreach (GraphicObject g in graphicObjectList)
+                        {
+                            outputFile.WriteLine(g.Encode());
+                        }
+                    }
+                }
+                catch (Exception exc)
+                {
+                    MessageBox.Show("An error has occured while attempting to save the file./r/n" + exc.Message);
+                }
+            }
+        }
+
+        // Load an existing file
+        private void button13_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    // Open the text file using a stream reader
+                    using (StreamReader sr = new StreamReader(ofd.FileName))
+                    {
+                        // Clear the old graphics
+                        graphicObjectList.Clear();
+
+                        string textLine;
+
+                        while ((textLine = sr.ReadLine()) != null)
+                        {
+                            // Decode the object type
+                            string type = textLine.TrimStart('{').Split(':')[1].Replace("\"", "").Split(',')[0];
+
+                            // Determine type of object and then create the object and add it to the list of objects to be drawn
+                            if (type.ToLower() == "line")
+                            {
+                                Line l = new Line();
+                                l.Decode(textLine);
+
+                                graphicObjectList.Add(l);
+                            }
+                            else if (type.ToLower() == "freehandline")
+                            {
+
+                            }
+                        }
+                    }
+
+                    Redraw();
+                }
+                catch (Exception exc)
+                {
+                    MessageBox.Show("An error has occured./r/n" + exc.Message);
+                }
+            }
         }
     }
 }

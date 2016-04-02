@@ -258,6 +258,7 @@
             this.button13.TabIndex = 17;
             this.button13.Text = "Load";
             this.button13.UseVisualStyleBackColor = true;
+            this.button13.Click += new System.EventHandler(this.button13_Click);
             // 
             // button14
             // 
@@ -268,6 +269,7 @@
             this.button14.TabIndex = 16;
             this.button14.Text = "Save";
             this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
             // pictureBox1
             // 

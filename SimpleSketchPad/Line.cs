@@ -195,5 +195,53 @@ namespace SimpleSketchPad
         {
             return id; 
         }
+
+        public override string Encode()
+        {
+            string jsonStart = "{";
+            string jsonEnd = "}";
+
+            string s_objectType = JsonFormat("objectType", ObjType());
+            string s_id = JsonFormat("id", id.ToString());
+            string s_colour = JsonFormat("colour", colour.ToArgb().ToString());
+            string s_origColour = JsonFormat("origColour", origColour.ToArgb().ToString());
+            string s_thickness = JsonFormat("thickness", thickness.ToString());
+            string s_startPoint = JsonFormatPoint("startPoint", startPoint.X, startPoint.Y);
+            string s_endPoint = JsonFormatPoint("endPoint", endPoint.X, endPoint.Y);
+            string s_mouseSelect = JsonFormatPoint("mouseSelect", mouseSelect.X, mouseSelect.Y);
+            string s_isSelected = JsonFormat("isSelected", isSelected.ToString(), false);
+
+            string json = jsonStart + s_objectType + s_id + s_colour + s_origColour + s_thickness + s_startPoint + s_endPoint + s_mouseSelect + s_isSelected + jsonEnd;
+            return json;
+        }
+
+        // Decode the JSON object and then set the graphic's properties
+        public override void Decode(string s)
+        {
+            try
+            {
+                // Decode and set the graphics properties
+                string[] jsonArr = s.TrimStart('{').TrimEnd('}').Split(',');
+
+                id = JsonGetIntValue(jsonArr[1]);
+                colour = JsonGetColorValue(jsonArr[2]);
+                origColour = JsonGetColorValue(jsonArr[3]);
+                thickness = JsonGetIntValue(jsonArr[4]);
+                startPoint = JsonGetPointValue(jsonArr[5] + "," + jsonArr[6]);
+                endPoint = JsonGetPointValue(jsonArr[7] + "," + jsonArr[8]);
+                mouseSelect = JsonGetPointValue(jsonArr[9] + "," + jsonArr[10]);
+                isSelected = JsonGetBooleanValue(jsonArr[11]);
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show("An error has occured while decoding the graphic.\r\n" + exc.Message);
+            }
+           
+        }
+
+        public override string ObjType()
+        {
+            return "line";
+        }
     }
 }
