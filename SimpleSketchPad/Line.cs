@@ -70,8 +70,6 @@ namespace SimpleSketchPad
         // Return true if the object contains the point passed as a parameter
         public override bool IsGraphicAtMousePoint(Point p)
         {
-            // Create a box around the object
-
             /* Check if the point is contained in the object */
             // Check to see if the point is inbetween the X coord of the start point and the end point
             if ((p.X >= Math.Min(startPoint.X, endPoint.X)) && (p.X <= Math.Max(startPoint.X, endPoint.X)))
@@ -83,8 +81,6 @@ namespace SimpleSketchPad
                 }
             }
 
-            // If so draw a box around it (or change (darken) the colour by redrawing the object)
-
             return false;
         }
 
@@ -95,21 +91,6 @@ namespace SimpleSketchPad
 
             // Change the colour
             colour = c;
-
-            /*
-            Point rectStartPoint = new Point();
-            rectStartPoint.X = Math.Min(startPoint.X, endPoint.X);
-            rectStartPoint.Y = Math.Min(startPoint.Y, endPoint.Y);
-
-            Point rectEndPoint = new Point();
-            rectEndPoint.X = Math.Max(startPoint.X, endPoint.X);
-            rectEndPoint.Y = Math.Max(startPoint.Y, endPoint.Y);
-
-            // Return a rectangle to be drawn around the graphic
-            Rectangle r = new Rectangle(rectStartPoint, rectEndPoint, colour, thickness);
-
-            return r; 
-            */ 
         }
 
         // Set the point where the mouse has clicked the object
@@ -236,7 +217,6 @@ namespace SimpleSketchPad
             {
                 MessageBox.Show("An error has occured while decoding the graphic.\r\n" + exc.Message);
             }
-           
         }
 
         public override string ObjType()

@@ -96,13 +96,13 @@ namespace SimpleSketchPad
             btn_colour.BackColor = colorDialog1.Color;
             colour = colorDialog1.Color;
 
-            // Set the default thickness to be 2
-            comboBox2.SelectedIndex = 1;
+            // Set the default thickness to be 5
+            comboBox2.SelectedIndex = 4;
             thickness = Int32.Parse(comboBox2.Text);
 
-            // Set freehand as the default drawing mode
-            button1.Select();
-            drawMode = DrawMode.freehand;
+            // Set line as the default drawing mode
+            button2.Select();
+            drawMode = DrawMode.line;
 
             // Set the default paste offset
             defaultPasteOffset = new Point(50, 50);
@@ -135,9 +135,9 @@ namespace SimpleSketchPad
                 DisplayDrawButtons();
                 mode = Mode.draw;
 
-                // Set freehand as the default drawing mode
-                button1.Select();
-                drawMode = DrawMode.freehand;
+                // Set line as the default drawing mode
+                button2.Select();
+                drawMode = DrawMode.line;
             }
             // Mode has been set to "select"
             else if (comboBox1.SelectedIndex == 1)
@@ -449,61 +449,65 @@ namespace SimpleSketchPad
                     beginGraphicMove = false;
 
                     // If graphic is part of a group, get the group
-                    List<GraphicObject> selectGroup = GetGroup(graphic); 
+                    List<GraphicObject> selectGroup = GetGroup(graphic);
 
-                    // Check if graphic is selected
-                    if (graphic.IsGraphicSelected())
+                    if (graphic != null)
                     {
-                        // Check if graphic is part of a group
-                        // If part of group, deselect entire group
 
-                        if (selectGroup.Count > 0)
+                        // Check if graphic is selected
+                        if (graphic.IsGraphicSelected())
                         {
-                            foreach (GraphicObject g in selectGroup)
+                            // Check if graphic is part of a group
+                            // If part of group, deselect entire group
+
+                            if (selectGroup.Count > 0)
+                            {
+                                foreach (GraphicObject g in selectGroup)
+                                {
+                                    // Deselect the graphic
+                                    g.DeselectGraphic();
+
+                                    // Remove from list of selected graphics
+                                    selectedGraphics.Remove(g);
+                                }
+                            }
+                            else
                             {
                                 // Deselect the graphic
-                                g.DeselectGraphic();
+                                graphic.DeselectGraphic();
 
                                 // Remove from list of selected graphics
-                                selectedGraphics.Remove(g);
+                                selectedGraphics.Remove(graphic);
                             }
+
+                            // Set the graphic reference to null (as nothing is selected)
+                            graphic = null;
                         }
                         else
                         {
-                            // Deselect the graphic
-                            graphic.DeselectGraphic();
+                            // Check if graphic is part of a group
+                            // If part of group, select entire group
 
-                            // Remove from list of selected graphics
-                            selectedGraphics.Remove(graphic);
-                        }
+                            // Loop through group and select each graphic
+                            if (selectGroup.Count > 0)
+                            {
+                                foreach (GraphicObject g in selectGroup)
+                                {
+                                    // Select the graphic and show this by changing the colour
+                                    g.SelectGraphic(Color.Red);
 
-                        // Set the graphic reference to null (as nothing is selected)
-                        graphic = null; 
-                    }
-                    else
-                    {
-                        // Check if graphic is part of a group
-                        // If part of group, select entire group
-
-                        // Loop through group and select each graphic
-                        if (selectGroup.Count > 0)
-                        {
-                            foreach (GraphicObject g in selectGroup)
+                                    // Add the selected graphic to the list of selected graphics
+                                    selectedGraphics.Add(g);
+                                }
+                            }
+                            else
                             {
                                 // Select the graphic and show this by changing the colour
-                                g.SelectGraphic(Color.Red);
+                                graphic.SelectGraphic(Color.Red);
 
                                 // Add the selected graphic to the list of selected graphics
-                                selectedGraphics.Add(g);
+                                selectedGraphics.Add(graphic);
                             }
-                        }
-                        else
-                        {
-                            // Select the graphic and show this by changing the colour
-                            graphic.SelectGraphic(Color.Red);
-
-                            // Add the selected graphic to the list of selected graphics
-                            selectedGraphics.Add(graphic);
                         }
                     }
                 }
@@ -858,14 +862,52 @@ namespace SimpleSketchPad
                             // Determine type of object and then create the object and add it to the list of objects to be drawn
                             if (type.ToLower() == "line")
                             {
-                                Line l = new Line();
+                                Line obj = new Line();
+                                obj.Decode(textLine);
+
+                                graphicObjectList.Add(obj);
+                            }
+                            else if (type.ToLower() == "freehandline")
+                            {
+                                FreehandLine obj = new FreehandLine();
+                                obj.Decode(textLine);
+
+                                graphicObjectList.Add(obj);
+                            }
+                            else if (type.ToLower() == "rectangle")
+                            {
+                                Rectangle obj = new Rectangle();
+                                obj.Decode(textLine);
+
+                                graphicObjectList.Add(obj);
+                            }
+                            else if (type.ToLower() == "square")
+                            {
+                                Square obj = new Square();
+                                obj.Decode(textLine);
+
+                                graphicObjectList.Add(obj);
+                            }
+                            else if (type.ToLower() == "ellipse")
+                            {
+                                Ellipse l = new Ellipse();
                                 l.Decode(textLine);
 
                                 graphicObjectList.Add(l);
                             }
-                            else if (type.ToLower() == "freehandline")
+                            else if (type.ToLower() == "circle")
                             {
+                                Circle obj = new Circle();
+                                obj.Decode(textLine);
 
+                                graphicObjectList.Add(obj);
+                            }
+                            else if (type.ToLower() == "polygon")
+                            {
+                                Polygon obj = new Polygon();
+                                obj.Decode(textLine);
+
+                                graphicObjectList.Add(obj);
                             }
                         }
                     }

@@ -30,7 +30,9 @@ namespace SimpleSketchPad
 
         public Polygon()
         {
+            lines = new List<Line>();
 
+            currentLine = new Line(startPoint, colour, thickness, id);
         }
 
         public Polygon(Point _startPoint, Color _colour, int _thickness, int _id)
@@ -38,6 +40,7 @@ namespace SimpleSketchPad
             id = _id; 
 
             colour = _colour;
+            origColour = colour;
             thickness = _thickness;
             startPoint = _startPoint;
             initialStartPoint = _startPoint;

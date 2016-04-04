@@ -1,1 +1,1 @@
-﻿
+﻿Please note that the professor has given me an extension on this assignment, without a late penalty. Thank you for your understanding.

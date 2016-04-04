@@ -35,6 +35,7 @@ namespace SimpleSketchPad
             id = _id; 
 
             colour = _colour;
+            origColour = colour;
             thickness = _thickness;
 
             initialPoint = _startPoint;
