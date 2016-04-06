@@ -223,7 +223,7 @@ namespace SimpleSketchPad
                 isSelected = JsonGetBooleanValue(arr[5]);
                 mouseSelect = JsonGetPointValue("{" + jsonArr[2].Split('}')[0] + "}");
                 
-                // TODO get all the points and put it into the list "lines"
+                // Get all the points and put it into the list "lines"
                 for (int i = 3; i < jsonArr.Length; i++)
                 {
                     string temp = "{";
